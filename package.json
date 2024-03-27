@@ -1,0 +1,41 @@
+{
+  "name": "@huongda-group/nothing-to-thing",
+  "version": "0.0.1",
+  "description": "RethinkDB ORM for Node.js",
+  "main": "dist/main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "tsc && npx tsc-alias",
+    "upgrade": "npm install -g npm-check-updates && ncu -u && npm install",
+    "test": "mocha --check-leaks -t 20000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/neumino/thinky"
+  },
+  "keywords": [
+    "rethinkdb",
+    "orm"
+  ],
+  "author": "Michel Tu <orphee@gmail.com> (http://justonepixel.com/)",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/neumino/thinky/issues"
+  },
+  "dependencies": {
+    "rethinkdbdash": "~2.3.31",
+    "bluebird": "~3.7.2",
+    "validator": "~13.11.0"
+  },
+  "devDependencies": {
+    "mocha": "~10.4.0",
+    "prettier": "~3.2.5",
+    "ts-node": "~10.9.2",
+    "tsc-alias": "~1.8.8",
+    "tsconfig-paths": "~4.2.0",
+    "typescript": "~5.4.3"
+  }
+}

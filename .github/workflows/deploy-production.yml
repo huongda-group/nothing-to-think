@@ -1,0 +1,41 @@
+name: Build image and deploy to K8S.
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set env
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "$CONFIGK8S" >> k8sconfig
+          echo "$ENV" >> .env
+        env:
+          CONFIGK8S: ${{secrets.K8S_CONFIG}}
+          ENV: ${{ secrets.ENV }}
+      - name: Build and Publish head Docker image
+        uses: VaultVulp/gp-docker-action@1.1.8
+        with:
+          github-token: ${{ secrets.PACKAGE_TOKEN }}
+          image-name: production
+          image-tag: ${{ env.RELEASE_VERSION }}
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "VERSIONTAG"
+          replace: ${{ env.RELEASE_VERSION }}
+          include: "deployment/update.yaml"
+      - name: Deploy to K8S.
+        uses: azure/setup-kubectl@v3
+      - name: Configure Kubectl
+        run: |
+          kubectl apply -f deployment/update.yaml --kubeconfig=k8sconfig

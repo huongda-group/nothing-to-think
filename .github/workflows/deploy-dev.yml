@@ -1,0 +1,39 @@
+name: Build image and deploy to development server.
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set env
+        run: |
+          echo "$ENV" >> .env
+        env:
+          ENV: ${{ secrets.DEV_ENV }}
+      - name: Build and Publish head Docker image
+        uses: VaultVulp/gp-docker-action@1.1.8
+        with:
+          github-token: ${{ secrets.PACKAGE_TOKEN }}
+          image-name: develop
+          image-tag: 'last'
+      - name: Delete old docker and pull new docker
+        uses: appleboy/ssh-action@master
+        timeout-minutes: 15
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USERNAME }}
+          password: ${{ secrets.DEV_PASSWORD }}
+          port: ${{ secrets.DEV_PORT }}
+          script: |
+            docker pull ghcr.io/huongda-group/api/develop:last
+            docker stop hdg-api
+            docker rm hdg-api
+            docker run -d -p 2218:2218 --name hdg-api ghcr.io/huongda-group/api/develop:last
